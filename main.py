@@ -29,7 +29,7 @@ class Data(BaseModel):
 path = "model/encoder.joblib" 
 encoder = load_model(path)
 
-path = "model/model.joblib" 
+path = "model/model.pkl"
 model = load_model(path)
 
 # TODO: create a RESTful API using FastAPI
@@ -39,7 +39,7 @@ app = FastAPI()
 @app.get("/")
 async def get_root():
     """ Say hello!"""
-    return {"Message": "Welcome to the Fast API"}
+    return {"message": "Welcome to the Fast API"}
  
 
 
@@ -66,7 +66,7 @@ async def post_inference(data: Data):
     ]
     data_processed, _, _, _ = process_data(
         data,
-        cat_features,
+        categorical_features=cat_features,
         label=None,
         training=False,
         encoder=encoder,
