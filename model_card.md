@@ -1,20 +1,22 @@
-# Model Card
-
+Model Card
 For additional information see the Model Card paper: https://arxiv.org/pdf/1810.03993.pdf
 
-## Model Details
+Model Details
 This model is a supervised machine learning classifier trained to predict whether an individual earns more than $50,000 per year based on U.S. Census demographic data.
-It uses RandomForestClassifier (or whichever model you selected as your final optimized model) implemented with scikit‑learn.
-The model is trained using a preprocessing pipeline that encodes categorical features and scales/normalizes numerical features where appropriate.
+It uses a RandomForestClassifier implemented with scikit‑learn.
+The model is trained using a preprocessing pipeline that applies one‑hot encoding to categorical features and label binarization to the target variable.
+
 Artifacts saved include:
 
 model.pkl — the trained classifier
 
-encoder.pkl — the fitted OneHotEncoder used during preprocessing
+encoder.joblib — the fitted OneHotEncoder used during preprocessing
+
+lb.joblib — the fitted LabelBinarizer used for the target variable
 
 The model is served through a FastAPI application for inference.
 
-## Intended Use
+Intended Use
 The model is intended for educational purposes within the Udacity Machine Learning DevOps Engineer Nanodegree.
 Its purpose is to demonstrate:
 
@@ -28,10 +30,10 @@ CI/CD integration with GitHub Actions
 
 Monitoring performance on data slices
 
-It is not intended for real‑world financial, employment, or eligibility decisions.
+This model is not intended for real‑world financial, employment, or eligibility decisions.
 
-## Training Data
-The model is trained on the Census Income dataset (also known as the Adult dataset).
+Training Data
+The model is trained on the Census Income (Adult) dataset.
 The dataset includes features such as:
 
 Age
@@ -43,6 +45,8 @@ Education
 Marital status
 
 Occupation
+
+Relationship
 
 Race
 
@@ -62,9 +66,9 @@ The dataset was split into:
 
 Categorical features were one‑hot encoded using the saved encoder.
 
-## Evaluation Data
-Evaluation was performed on the held‑out test set (20% of the original dataset).
-Additionally, performance was evaluated on data slices, such as:
+Evaluation Data
+Evaluation was performed on the held‑out 20% test set.
+Additionally, performance was evaluated on data slices, including:
 
 Race
 
@@ -74,28 +78,21 @@ Education
 
 Workclass
 
-Slice performance results are saved in slice_output.txt
-## Metrics
-The model was evaluated using:
+Slice performance results are saved in slice_output.txt.
 
-Precision
+Metrics
+The model was evaluated using precision, recall, and F1 score on the held‑out test set.
 
-Recall
+Precision: 0.7353
 
-F‑beta score (β = 1)
+Recall: 0.6378
 
-Accuracy
+F1 Score: 0.6831
 
-Your actual results (replace with your numbers if needed):
+Slice‑level metrics vary across demographic groups and are documented in slice_output.txt.
 
-Accuracy: ~0.83
-
-F1 Score: ~0.74
-
-Slice metrics vary depending on the subgroup and are documented in slice_output.txt.
-
-## Ethical Considerations
-The Census dataset contains demographic attributes that are sensitive, including race, sex, and marital status.
+Ethical Considerations
+The Census dataset contains sensitive demographic attributes such as race, sex, and marital status.
 Using such features in predictive models can:
 
 Introduce or amplify bias
@@ -114,8 +111,9 @@ Fairness constraints
 Continuous monitoring
 
 Domain expert review
-## Caveats and Recommendations
-The model is trained on a dataset from the 1990s and may not generalize to modern populations.
+
+Caveats and Recommendations
+The dataset originates from the 1990s and may not generalize to modern populations.
 
 The dataset contains known biases and imbalances.
 
