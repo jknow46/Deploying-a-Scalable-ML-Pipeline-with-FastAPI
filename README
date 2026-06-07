@@ -1,0 +1,69 @@
+NYC Airbnb ML Pipeline
+This project implements a complete ML pipeline using MLflow and modular components.
+The pipeline downloads data, cleans it, validates it, splits it, and trains a Random Forest model.
+
+Links Required for Udacity Review
+🔗 Public W&B Project:  
+https://wandb.ai/jknow46-western-governors-university/nyc_airbnb
+
+🔗 GitHub Repository:  
+<INSERT YOUR GITHUB REPO URL HERE>
+
+Udacity requires both links here and in the submission box.
+
+How to Run the Pipeline
+Create and activate the environment:
+
+bash
+python3 -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+Run the full pipeline:
+
+bash
+python -m mlflow run --env-manager local .
+This runs all steps:
+
+Download data
+
+Basic cleaning
+
+Data validation (pytest)
+
+Train/val/test split
+
+Train Random Forest model
+
+The final model is saved as:
+
+Code
+model.joblib
+Project Structure
+Code
+components/
+  get_data/
+  basic_cleaning/
+  data_check/
+  train_val_test_split/
+  train_random_forest/
+
+data/
+main.py
+MLproject
+config.yaml
+rf_config.json
+README.md
+Outputs
+After running the pipeline, you will have:
+
+Code
+data/clean_sample.csv
+data/trainval.csv
+data/test.csv
+model.joblib
+Notes
+W&B runs in offline mode during the pipeline
+
+Only numeric features are used for model training
+
+Data validation tests must pass before training continues
