@@ -1,6 +1,14 @@
 NYC Airbnb Price Prediction Pipeline
 This project implements a complete, reproducible ML pipeline for predicting Airbnb listing prices in New York City. The workflow uses MLflow, Hydra, and Weights & Biases (W&B) to manage configuration, track experiments, and version data/model artifacts.
 
+Project files are located on the branch:
+
+https://github.com/jknow46/Deploying-a-Scalable-ML-Pipeline-with-FastAPI/tree/setup/initial (github.com in Bing)
+
+W&B project dashboard:
+
+https://wandb.ai/jknow46-western-governors-university/nyc_airbnb
+
 Pipeline Overview
 The pipeline consists of six modular MLflow components:
 
@@ -15,8 +23,6 @@ train_val_test_split – Splits cleaned data into train/val/test sets.
 train_random_forest – Trains a RandomForestRegressor using numeric features.
 
 test_regression_model – Evaluates the model and logs RMSE and R².
-
-All steps run independently and pass artifacts between components using W&B.
 
 How to Run the Pipeline
 1. Create the environment
@@ -47,10 +53,10 @@ Trained model
 
 Evaluation metrics
 
-Project dashboard:
+W&B project link:
 
-Code
 https://wandb.ai/jknow46-western-governors-university/nyc_airbnb
+
 Model Performance
 Example evaluation results:
 
@@ -63,3 +69,6 @@ The model uses numeric-only features to ensure consistent training and testing.
 All MLproject files are configured for reliable MLflow execution.
 
 The pipeline is fully reproducible end‑to‑end.
+
+Project branch:
+https://github.com/jknow46/Deploying-a-Scalable-ML-Pipeline-with-FastAPI/tree/setup/initial
