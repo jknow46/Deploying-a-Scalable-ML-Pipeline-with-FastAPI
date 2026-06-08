@@ -8,5 +8,8 @@ entry_points:
       steps:
         type: string
         default: "all"
+      sample:
+        type: string
+        default: "sample.csv"
     command: >
-      python main.py main.steps='{steps}'
+      python main.py main.steps='{steps}' etl.sample='{sample}'
