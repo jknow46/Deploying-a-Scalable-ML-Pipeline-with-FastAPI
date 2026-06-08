@@ -1,55 +1,48 @@
 #!/usr/bin/env python
-"""
-Wrapper to run the data_check pytest suite programmatically so conftest.py
-is discovered and custom pytest options (--csv, --ref, etc.) are registered.
-"""
 
 import argparse
-import os
-import sys
-import pytest
 import logging
+import pandas as pd
+import wandb
+import pytest
 
-logging.basicConfig(level=logging.INFO, format="%(asctime)-15s %(message)s")
+logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 
-def parse_args():
-    parser = argparse.ArgumentParser(description="Run data_check pytest suite")
-    parser.add_argument("--csv", required=True, help="Path to CSV to test")
-    parser.add_argument("--ref", required=True, help="Path to reference CSV")
-    parser.add_argument("--kl_threshold", type=float, required=True, help="KL threshold")
-    parser.add_argument("--min_price", type=float, required=True, help="Minimum price")
-    parser.add_argument("--max_price", type=float, required=True, help="Maximum price")
-    return parser.parse_args()
+def go(args):
 
+    run = wandb.init(
+        project="nyc_airbnb",
+        job_type="data_check",
+        save_code=True,
+        mode="online"
+    )
+    run.config.update(vars(args))
 
-def main():
-    args = parse_args()
+    df = pd.read_csv(args.csv)
+    ref = pd.read_csv(args.ref)
 
-    # Ensure the test folder path is absolute
-    project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
-    tests_path = os.path.join(project_root, "components", "data_check")
-
-    # Build pytest args: run tests in components/data_check and pass the custom options
-    pytest_args = [
-        "-vv",
-        tests_path,
-        "--csv", args.csv,
-        "--ref", args.ref,
-        "--kl_threshold", str(args.kl_threshold),
-        "--min_price", str(args.min_price),
-        "--max_price", str(args.max_price),
-    ]
-
-    logger.info("Running pytest with args: %s", " ".join(pytest_args))
-
-    # Call pytest programmatically. This will load conftest.py from tests_path.
-    exit_code = pytest.main(pytest_args)
-
-    # Propagate pytest exit code
-    sys.exit(exit_code)
+    pytest.main([
+        "-q",
+        "--disable-warnings",
+        f"--csv={args.csv}",
+        f"--ref={args.ref}",
+        f"--kl_threshold={args.kl_threshold}",
+        f"--min_price={args.min_price}",
+        f"--max_price={args.max_price}",
+        "tests/test_data.py"
+    ])
 
 
 if __name__ == "__main__":
-    main()
+    parser = argparse.ArgumentParser(description="Data check")
+
+    parser.add_argument("--csv", type=str, required=True)
+    parser.add_argument("--ref", type=str, required=True)
+    parser.add_argument("--kl_threshold", type=float, required=True)
+    parser.add_argument("--min_price", type=float, required=True)
+    parser.add_argument("--max_price", type=float, required=True)
+
+    args = parser.parse_args()
+    go(args)

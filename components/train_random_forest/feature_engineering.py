@@ -1,11 +1,27 @@
+import json
 import pandas as pd
-import numpy as np
+from sklearn.feature_extraction.text import TfidfVectorizer
 
 
-def delta_date_feature(dates):
-    """
-    Given a 2d array containing dates (in any format recognized by pd.to_datetime), it returns the delta in days
-    between each date and the most recent date in its column
-    """
-    date_sanitized = pd.DataFrame(dates).apply(pd.to_datetime)
-    return date_sanitized.apply(lambda d: (d.max() -d).dt.days, axis=0).to_numpy()
+def preprocess_features(X: pd.DataFrame) -> pd.DataFrame:
+    # Example simple feature engineering:
+    # - One-hot encode categorical
+    # - TF-IDF on 'name'
+    X = X.copy()
+
+    if "name" in X.columns:
+        tfidf = TfidfVectorizer(max_features=50)
+        tfidf_mat = tfidf.fit_transform(X["name"].fillna(""))
+        tfidf_df = pd.DataFrame(
+            tfidf_mat.toarray(),
+            columns=[f"name_tfidf_{i}" for i in range(tfidf_mat.shape[1])],
+            index=X.index,
+        )
+        X = X.drop(columns=["name"])
+        X = pd.concat([X, tfidf_df], axis=1)
+
+    # Simple one-hot for object columns
+    cat_cols = X.select_dtypes(include=["object"]).columns
+    X = pd.get_dummies(X, columns=cat_cols, drop_first=True)
+
+    return X

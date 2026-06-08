@@ -1,47 +1,34 @@
-#!/usr/bin/env python
-"""
-This script returns a local sample file and logs it as a W&B artifact.
-"""
 import argparse
 import logging
 import os
-
 import wandb
-from wandb_utils.log_artifact import log_artifact
+import pandas as pd
 
-logging.basicConfig(level=logging.INFO, format="%(asctime)-15s %(message)s")
-logger = logging.getLogger()
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 
 def go(args):
-
-    run = wandb.init(job_type="download_file", mode="online")
-    run.config.update(args)
-
+    run = wandb.init(job_type="get_data")
     logger.info(f"Returning sample {args.sample}")
-    logger.info(f"Uploading {args.artifact_name} to Weights & Biases")
 
-    # FIX: compute absolute path to project root
-    project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
-    local_file = os.path.join(project_root, "data", args.sample)
-
-    log_artifact(
+    # Just log the provided sample file as artifact
+    artifact = wandb.Artifact(
         args.artifact_name,
-        args.artifact_type,
-        args.artifact_description,
-        local_file,
-        run,
+        type=args.artifact_type,
+        description=args.artifact_description,
     )
+    artifact.add_file(args.sample)
+    run.log_artifact(artifact)
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Return a local sample file")
+    parser = argparse.ArgumentParser()
 
-    parser.add_argument("sample", type=str, help="Name of the sample file")
-    parser.add_argument("artifact_name", type=str, help="Name for the output artifact")
-    parser.add_argument("artifact_type", type=str, help="Output artifact type")
-    parser.add_argument("artifact_description", type=str, help="Artifact description")
+    parser.add_argument("sample", type=str)
+    parser.add_argument("artifact_name", type=str)
+    parser.add_argument("artifact_type", type=str)
+    parser.add_argument("artifact_description", type=str)
 
     args = parser.parse_args()
-
     go(args)

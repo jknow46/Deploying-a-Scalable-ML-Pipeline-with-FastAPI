@@ -1,69 +1,65 @@
-NYC Airbnb ML Pipeline
-This project implements a complete ML pipeline using MLflow and modular components.
-The pipeline downloads data, cleans it, validates it, splits it, and trains a Random Forest model.
+NYC Airbnb Price Prediction Pipeline
+This project implements a complete, reproducible ML pipeline for predicting Airbnb listing prices in New York City. The workflow uses MLflow, Hydra, and Weights & Biases (W&B) to manage configuration, track experiments, and version data/model artifacts.
 
-Links Required for Udacity Review
-🔗 Public W&B Project:  
-https://wandb.ai/jknow46-western-governors-university/nyc_airbnb
+Pipeline Overview
+The pipeline consists of six modular MLflow components:
 
-🔗 GitHub Repository:  
-<INSERT YOUR GITHUB REPO URL HERE>
+get_data – Logs the raw dataset as a W&B artifact.
 
-Udacity requires both links here and in the submission box.
+basic_cleaning – Removes price outliers and invalid rows.
+
+data_check – Validates schema, price ranges, and data drift.
+
+train_val_test_split – Splits cleaned data into train/val/test sets.
+
+train_random_forest – Trains a RandomForestRegressor using numeric features.
+
+test_regression_model – Evaluates the model and logs RMSE and R².
+
+All steps run independently and pass artifacts between components using W&B.
 
 How to Run the Pipeline
-Create and activate the environment:
-
+1. Create the environment
 bash
-python3 -m venv .venv
-source .venv/bin/activate
-pip install -r requirements.txt
-Run the full pipeline:
-
+conda env create -f conda.yml
+conda activate mlflow-env
+2. Run the full pipeline
 bash
-python -m mlflow run --env-manager local .
-This runs all steps:
-
-Download data
-
-Basic cleaning
-
-Data validation (pytest)
-
-Train/val/test split
-
-Train Random Forest model
-
-The final model is saved as:
+mlflow run . --env-manager=local
+3. Run specific steps (optional)
+bash
+mlflow run . -P steps="basic_cleaning,data_check"
+Configuration
+All parameters (paths, thresholds, model settings, random seeds) are defined in:
 
 Code
-model.joblib
-Project Structure
-Code
-components/
-  get_data/
-  basic_cleaning/
-  data_check/
-  train_val_test_split/
-  train_random_forest/
-
-data/
-main.py
-MLproject
 config.yaml
-rf_config.json
-README.md
-Outputs
-After running the pipeline, you will have:
+Hydra loads this automatically when running main.py.
+
+Artifacts & Tracking
+Each component logs its outputs to Weights & Biases, including:
+
+Cleaned dataset
+
+Train/val/test splits
+
+Trained model
+
+Evaluation metrics
+
+Project dashboard:
 
 Code
-data/clean_sample.csv
-data/trainval.csv
-data/test.csv
-model.joblib
+https://wandb.ai/jknow46-western-governors-university/nyc_airbnb
+Model Performance
+Example evaluation results:
+
+Code
+RMSE: 58.28
+R2: 0.3168
 Notes
-W&B runs in offline mode during the pipeline
+The model uses numeric-only features to ensure consistent training and testing.
 
-Only numeric features are used for model training
+All MLproject files are configured for reliable MLflow execution.
 
-Data validation tests must pass before training continues
+The pipeline is fully reproducible end‑to‑end.

@@ -1,73 +1,53 @@
-#!/usr/bin/env python
-"""
-This step takes the best model, tagged with the "prod" tag, and tests it against the test dataset
-"""
 import argparse
 import logging
 import wandb
-import mlflow
 import pandas as pd
-from sklearn.metrics import mean_absolute_error
+import joblib
+from sklearn.metrics import mean_squared_error, r2_score
 
-from wandb_utils.log_artifact import log_artifact
-
-
-logging.basicConfig(level=logging.INFO, format="%(asctime)-15s %(message)s")
-logger = logging.getLogger()
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 
 def go(args):
+    run = wandb.init(job_type="test_regression_model")
 
-    run = wandb.init(job_type="test_model")
-    run.config.update(args)
+    logger.info("Downloading model artifact")
+    model_art = run.use_artifact(args.model_export)
+    model_path = model_art.file()
 
-    logger.info("Downloading artifacts")
-    # Download input artifact. This will also log that this script is using this
-    # particular version of the artifact
-    model_local_path = run.use_artifact(args.mlflow_model).download()
+    logger.info("Downloading test data artifact")
+    test_art = run.use_artifact(args.test_data)
+    test_path = test_art.file()
 
-    # Download test dataset
-    test_dataset_path = run.use_artifact(args.test_dataset).file()
+    model = joblib.load(model_path)
+    df = pd.read_csv(test_path)
 
-    # Read test dataset
-    X_test = pd.read_csv(test_dataset_path)
-    y_test = X_test.pop("price")
+    y = df["price"]
+    X = df.drop(columns=["price"])
 
-    logger.info("Loading model and performing inference on test set")
-    sk_pipe = mlflow.sklearn.load_model(model_local_path)
-    y_pred = sk_pipe.predict(X_test)
+    # Use ONLY numeric features (matches training)
+    logger.info("Selecting numeric features only")
+    X = X.select_dtypes(include=["number"])
 
-    logger.info("Scoring")
-    r_squared = sk_pipe.score(X_test, y_test)
+    # Predict
+    y_pred = model.predict(X)
 
-    mae = mean_absolute_error(y_test, y_pred)
+    # Compute RMSE manually (compatible with older sklearn)
+    rmse = mean_squared_error(y, y_pred) ** 0.5
+    r2 = r2_score(y, y_pred)
 
-    logger.info(f"Score: {r_squared}")
-    logger.info(f"MAE: {mae}")
+    logger.info(f"RMSE: {rmse}")
+    logger.info(f"R2: {r2}")
 
-    # Log MAE and r2
-    run.summary['r2'] = r_squared
-    run.summary['mae'] = mae
+    wandb.log({"rmse": rmse, "r2": r2})
 
 
 if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
 
-    parser = argparse.ArgumentParser(description="Test the provided model against the test dataset")
-
-    parser.add_argument(
-        "--mlflow_model",
-        type=str, 
-        help="Input MLFlow model",
-        required=True
-    )
-
-    parser.add_argument(
-        "--test_dataset",
-        type=str, 
-        help="Test dataset",
-        required=True
-    )
+    parser.add_argument("--model_export", type=str, required=True)
+    parser.add_argument("--test_data", type=str, required=True)
 
     args = parser.parse_args()
-
     go(args)
