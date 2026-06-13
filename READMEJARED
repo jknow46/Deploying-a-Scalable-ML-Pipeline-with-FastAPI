@@ -1,0 +1,74 @@
+NYC Airbnb Price Prediction Pipeline
+This project implements a complete, reproducible ML pipeline for predicting Airbnb listing prices in New York City. The workflow uses MLflow, Hydra, and Weights & Biases (W&B) to manage configuration, track experiments, and version data/model artifacts.
+
+Project files are located on the branch:
+
+https://github.com/jknow46/Deploying-a-Scalable-ML-Pipeline-with-FastAPI/tree/setup/initial
+
+W&B project dashboard:
+
+https://wandb.ai/jknow46-western-governors-university/nyc_airbnb
+
+Pipeline Overview
+The pipeline consists of six modular MLflow components:
+
+get_data – Logs the raw dataset as a W&B artifact.
+
+basic_cleaning – Removes price outliers and invalid rows.
+
+data_check – Validates schema, price ranges, and data drift.
+
+train_val_test_split – Splits cleaned data into train/val/test sets.
+
+train_random_forest – Trains a RandomForestRegressor using numeric features.
+
+test_regression_model – Evaluates the model and logs RMSE and R².
+
+How to Run the Pipeline
+1. Create the environment
+bash
+conda env create -f conda.yml
+conda activate mlflow-env
+2. Run the full pipeline
+bash
+mlflow run . --env-manager=local
+3. Run specific steps (optional)
+bash
+mlflow run . -P steps="basic_cleaning,data_check"
+Configuration
+All parameters (paths, thresholds, model settings, random seeds) are defined in:
+
+Code
+config.yaml
+Hydra loads this automatically when running main.py.
+
+Artifacts & Tracking
+Each component logs its outputs to Weights & Biases, including:
+
+Cleaned dataset
+
+Train/val/test splits
+
+Trained model
+
+Evaluation metrics
+
+W&B project link:
+
+https://wandb.ai/jknow46-western-governors-university/nyc_airbnb
+
+Model Performance
+Example evaluation results:
+
+Code
+RMSE: 58.28
+R2: 0.3168
+Notes
+The model uses numeric-only features to ensure consistent training and testing.
+
+All MLproject files are configured for reliable MLflow execution.
+
+The pipeline is fully reproducible end‑to‑end.
+
+Project branch:
+https://github.com/jknow46/Deploying-a-Scalable-ML-Pipeline-with-FastAPI/tree/setup/initial
