@@ -21,6 +21,19 @@ def go(args):
     idx = df["price"].between(args.min_price, args.max_price)
     df = df[idx].copy()
 
+    # ⭐ NEW REQUIRED CLEANING STEP — NYC bounding box ⭐
+    logger.info("Removing listings outside NYC bounding box")
+
+    min_longitude = -74.25
+    max_longitude = -73.50
+    min_latitude = 40.5
+    max_latitude = 41.2
+
+    df = df[
+        df["longitude"].between(min_longitude, max_longitude)
+        & df["latitude"].between(min_latitude, max_latitude)
+    ].copy()
+
     # Drop outliers / NA
     df = df.dropna().reset_index(drop=True)
 

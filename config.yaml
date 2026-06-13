@@ -4,6 +4,7 @@ main:
   experiment_name: development
   steps: all
   env_manager: local
+  sample: "sample.csv"   # REQUIRED FOR HYDRA OVERRIDES
 
 etl:
   sample: "sample.csv"
